@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
-    <ProjectGuid>{7E6865C8-7917-42E7-9BA2-D7E42EF7C26C}</ProjectGuid>
+    <ProjectGuid>{840F9E89-4E2F-4E1C-BF4E-C7C33F840E34}</ProjectGuid>
     <OutputType>AppContainerExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>UapVideoTest</RootNamespace>
-    <AssemblyName>UapVideoTest</AssemblyName>
+    <RootNamespace>Ghastly.Controller.Uwp</RootNamespace>
+    <AssemblyName>Ghastly.Controller.Uwp</AssemblyName>
     <DefaultLanguage>en-US</DefaultLanguage>
     <TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>
     <TargetPlatformVersion>10.0.14393.0</TargetPlatformVersion>
@@ -16,7 +16,7 @@
     <MinimumVisualStudioVersion>14</MinimumVisualStudioVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{A5A43C5B-DE2A-4C0C-9213-0A381AF9435A};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
-    <PackageCertificateKeyFile>UapVideoTest_TemporaryKey.pfx</PackageCertificateKeyFile>
+    <PackageCertificateKeyFile>Ghastly.Controller.Uwp_TemporaryKey.pfx</PackageCertificateKeyFile>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
@@ -99,20 +99,18 @@
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ViewModels\SceneSelectionViewModel.cs" />
+    <Compile Include="Views\SceneSelectionView.xaml.cs">
+      <DependentUpon>SceneSelectionView.xaml</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">
       <SubType>Designer</SubType>
     </AppxManifest>
-    <None Include="UapVideoTest_TemporaryKey.pfx" />
+    <None Include="Ghastly.Controller.Uwp_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="BW_Buffer_Wall_Spotlight_H.mp4">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="BW_DrippingBlood_Wall_Spotlight_H.mp4">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
     <Content Include="Properties\Default.rd.xml" />
     <Content Include="Assets\LockScreenLogo.scale-200.png" />
     <Content Include="Assets\SplashScreen.scale-200.png" />
@@ -131,11 +129,19 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Views\SceneSelectionView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Ghastly.Io\Ghastly.Io.csproj">
-      <Project>{56daedd6-10b3-4d90-a1f6-3f2cf8fb66cb}</Project>
+      <Project>{56DAEDD6-10B3-4D90-A1F6-3F2CF8FB66CB}</Project>
       <Name>Ghastly.Io</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MojoUi\MojoUi.csproj">
+      <Project>{2A43491D-9500-467B-B41A-5889004BEB2D}</Project>
+      <Name>MojoUi</Name>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">

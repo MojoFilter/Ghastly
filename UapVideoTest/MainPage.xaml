@@ -7,12 +7,14 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     Loaded="Page_Loaded"
     mc:Ignorable="d">
-
-    <RelativePanel>
-        <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-            <MediaElement x:Name="bufferPlayer" IsLooping="True" />
-            <MediaElement x:Name="immediatePlayer" MediaOpened="immediatePlayer_MediaOpened" MediaEnded="immediatePlayer_MediaEnded" />
-        </Grid>
-        <Button HorizontalAlignment="Right" VerticalAlignment="Bottom" Click="Button_Click" Foreground="Yellow" RelativePanel.AlignBottomWithPanel="True">Bleed</Button>
-    </RelativePanel>
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <StackPanel>
+            <Grid x:Name="videos">
+                <MediaElement x:Name="bufferPlayer" IsLooping="True" />
+                <MediaElement x:Name="immediatePlayer" />
+            </Grid>
+            <Button Click="Button_Click" Foreground="Yellow">Bleed</Button>
+            <Button Click="Send_Click" Foreground="Yellow">Send</Button>
+        </StackPanel>
+    </Grid>
 </Page>

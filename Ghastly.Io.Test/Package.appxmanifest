@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Package xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10" xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest" xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10" IgnorableNamespaces="uap mp">
-  <Identity Name="061240b9-12d2-4243-8f55-b13400b1cba2" Publisher="CN=Joshua" Version="1.0.0.0" />
-  <mp:PhoneIdentity PhoneProductId="061240b9-12d2-4243-8f55-b13400b1cba2" PhonePublisherId="00000000-0000-0000-0000-000000000000" />
+  <Identity Name="6a0c9e4a-bf9c-4ded-b8fa-877aeef551b8" Publisher="CN=Joshua" Version="1.0.0.0" />
+  <mp:PhoneIdentity PhoneProductId="6a0c9e4a-bf9c-4ded-b8fa-877aeef551b8" PhonePublisherId="00000000-0000-0000-0000-000000000000" />
   <Properties>
-    <DisplayName>UapVideoTest</DisplayName>
+    <DisplayName>Ghastly.Io.Test</DisplayName>
     <PublisherDisplayName>Joshua</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
@@ -14,8 +14,8 @@
     <Resource Language="x-generate" />
   </Resources>
   <Applications>
-    <Application Id="App" Executable="$targetnametoken$.exe" EntryPoint="UapVideoTest.App">
-      <uap:VisualElements DisplayName="UapVideoTest" Square150x150Logo="Assets\Square150x150Logo.png" Square44x44Logo="Assets\Square44x44Logo.png" Description="UapVideoTest" BackgroundColor="transparent">
+    <Application Id="vstest.executionengine.universal.App" Executable="$targetnametoken$.exe" EntryPoint="Ghastly.Io.Test.App">
+      <uap:VisualElements DisplayName="Ghastly.Io.Test" Square150x150Logo="Assets\Square150x150Logo.png" Square44x44Logo="Assets\Square44x44Logo.png" Description="Ghastly.Io.Test" BackgroundColor="transparent">
         <uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png">
         </uap:DefaultTile>
         <uap:SplashScreen Image="Assets\SplashScreen.png" />
@@ -23,8 +23,7 @@
     </Application>
   </Applications>
   <Capabilities>
-    <Capability Name="privateNetworkClientServer" />
-    <Capability Name="internetClientServer" />
     <Capability Name="internetClient" />
+    <Capability Name="privateNetworkClientServer" />
   </Capabilities>
 </Package>

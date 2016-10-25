@@ -1,11 +1,16 @@
-﻿using System;
+﻿using Ghastly.Io;
+using System;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.Storage;
 using Windows.Storage.Streams;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-
+using System.Reactive.Linq;
+using System.Diagnostics;
+using System.Net.Sockets;
+using Windows.Networking.Sockets;
+using Windows.Networking;
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
 namespace UapVideoTest
@@ -19,11 +24,9 @@ namespace UapVideoTest
             "BW_Buffer_Wall_Spotlight_H.mp4",
             "BW_DrippingBlood_Wall_Spotlight_H.mp4"
         };
-
-        private IRandomAccessStream[] streams;
-
-        private int index = 0;
-        private string contentType;
+        private string host = "localhost";
+        private int port = 11337;
+        private TcpGhastlyServiceListener listener;
 
         public MainPage()
         {
@@ -33,6 +36,8 @@ namespace UapVideoTest
         private async void Page_Loaded(object sender, RoutedEventArgs e)
         {
             await StartBg();
+            this.listener = new TcpGhastlyServiceListener(new GhastServer(), this.port);
+            await this.listener.Listen();
         }
         
 
@@ -51,9 +56,21 @@ namespace UapVideoTest
         private async Task<StorageFile> GetVideoFile(string fileName) => 
             await Package.Current.InstalledLocation.GetFileAsync(fileName);
 
-        private async void Button_Click(object sender, RoutedEventArgs e)
+        private async void Button_Click(object sender, RoutedEventArgs e) => await this.StartImmediate();
+
+        private async void Send_Click(object sender, RoutedEventArgs e)
         {
-            await this.StartImmediate();
+            IGhastlyService client = new TcpGhastlyService(this.host, this.port);
+            var scenes = await client.GetScenes().ToArray();
+        }
+
+        class GhastServer : IGhastlyService
+        {
+            public IObservable<SceneDescription> GetScenes() => new[]
+            {
+                new SceneDescription() { Name="Bleeding Wall" },
+                new SceneDescription() { Name="Bone Band" }
+            }.ToObservable();
         }
     }
 }
