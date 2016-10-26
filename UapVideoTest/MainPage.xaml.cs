@@ -11,6 +11,8 @@ using System.Diagnostics;
 using System.Net.Sockets;
 using Windows.Networking.Sockets;
 using Windows.Networking;
+using System.Linq;
+using System.Collections.Generic;
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
 namespace UapVideoTest
@@ -61,16 +63,18 @@ namespace UapVideoTest
         private async void Send_Click(object sender, RoutedEventArgs e)
         {
             IGhastlyService client = new TcpGhastlyService(this.host, this.port);
-            var scenes = await client.GetScenes().ToArray();
+            var scenes = (await client.GetScenes()).ToList();
         }
 
         class GhastServer : IGhastlyService
         {
-            public IObservable<SceneDescription> GetScenes() => new[]
+
+            Task<IEnumerable<SceneDescription>> IGhastlyService.GetScenes() => Task.FromResult(new[]
             {
                 new SceneDescription() { Name="Bleeding Wall" },
                 new SceneDescription() { Name="Bone Band" }
-            }.ToObservable();
+            }.AsEnumerable());
+            
         }
     }
 }

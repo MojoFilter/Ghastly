@@ -20,8 +20,8 @@ namespace Ghastly.Controller.Uwp.ViewModels
 
         public SceneSelectionViewModel(IGhastlyService ghast)
         {
-            this.LoadScenes = ReactiveCommand.CreateFromTask(async _ => (await ghast.GetScenes().ToList()).AsEnumerable());
-            this._Scenes = this.LoadScenes.ToProperty(this, x => x.Scenes);
+            this.LoadScenes = ReactiveCommand.CreateFromTask(ghast.GetScenes);
+            this._Scenes = this.LoadScenes.ObserveOnDispatcher().ToProperty(this, x => x.Scenes);
         }
     }
 }

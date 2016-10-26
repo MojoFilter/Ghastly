@@ -10,7 +10,7 @@
     d:DesignWidth="400">
 
     <StackPanel>
-        <ListBox ItemsSource="{x:Bind ViewModel.Scenes, Mode=OneWay}" />
+        <ListBox ItemsSource="{x:Bind ViewModel.Scenes, Mode=OneWay}" DisplayMemberPath="Name" />
         <Button Command="{x:Bind ViewModel.LoadScenes}">Load Them Scenes</Button>
     </StackPanel>
 </UserControl>

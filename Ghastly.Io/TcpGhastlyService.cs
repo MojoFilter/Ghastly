@@ -10,6 +10,7 @@ using System.Reactive.Linq;
 using Newtonsoft.Json;
 using Windows.Networking;
 using Windows.Foundation;
+using Windows.ApplicationModel.Background;
 
 namespace Ghastly.Io
 {
@@ -25,28 +26,26 @@ namespace Ghastly.Io
             this.port = port.ToString();
         }
 
-        public IObservable<SceneDescription> GetScenes() => Observable.Create<SceneDescription>(async obs =>
+        public async Task<IEnumerable<SceneDescription>> GetScenes() 
         {
             var socket = new StreamSocket();
             await socket.ConnectAsync(this.host, this.port);
             using (var writer = new DataWriter(socket.OutputStream))
             {
                 writer.WriteByte((byte)CommandCode.GetScenes);
+                await writer.StoreAsync();
+                await writer.FlushAsync();
                 writer.DetachStream();
             }
 
-            var inputBuffer = new Buffer(1);
-            var buffer = await socket.InputStream.ReadAsync(inputBuffer, 1, InputStreamOptions.None);
-            var reader = DataReader.FromBuffer(buffer);
-            var length = reader.ReadUInt32();
-
-            inputBuffer = new Buffer(length);
-            buffer = await socket.InputStream.ReadAsync(inputBuffer, length, InputStreamOptions.None);
-            reader = DataReader.FromBuffer(buffer);
-            var data = reader.ReadString(length);
-            var scenes = JsonConvert.DeserializeObject<IEnumerable<SceneDescription>>(data);
-            return scenes.ToObservable().Subscribe(obs);
-        });
+            using (var reader = new DataReader(socket.InputStream))
+            {
+                reader.InputStreamOptions = InputStreamOptions.Partial;
+                await reader.LoadAsync(1024);
+                var data = reader.ReadString(reader.UnconsumedBufferLength);
+                return JsonConvert.DeserializeObject<IEnumerable<SceneDescription>>(data);
+            }
+        }
     }
 
     public class TcpGhastlyServiceListener
@@ -63,39 +62,44 @@ namespace Ghastly.Io
             this.listener.ConnectionReceived += Listener_ConnectionReceived;
         }
 
-        public async Task Listen() => await this.listener.BindServiceNameAsync(this.port.ToString());
+        public async Task Listen()
+        {
+            await this.listener.BindServiceNameAsync(this.port.ToString());
+        }
 
         private async void Listener_ConnectionReceived(StreamSocketListener sender, StreamSocketListenerConnectionReceivedEventArgs args)
         {
-            var socket = args.Socket;
-            var inputBuffer = new Buffer(1);
             try
             {
-                var buffer = await socket.InputStream.ReadAsync(inputBuffer, 1, InputStreamOptions.None);
-                var reader = DataReader.FromBuffer(buffer);
-                IAsyncOperation<uint> taskLoad = reader.LoadAsync(1);
-                taskLoad.AsTask().Wait();
-                uint bytesRead = taskLoad.GetResults();
-                var command = (CommandCode)reader.ReadByte();
+                var command = await this.ReadCommand(args.Socket);
                 switch (command)
                 {
                     case CommandCode.GetScenes:
-                        await this.HandleGetScenes(socket.OutputStream);
+                        await this.HandleGetScenes(args.Socket.OutputStream);
                         break;
                 }
-                socket.Dispose();
+                args.Socket.Dispose();
             }
             finally { }
         }
 
+        private async Task<CommandCode> ReadCommand(StreamSocket socket)
+        {
+            using (var reader = new DataReader(socket.InputStream))
+            {
+                await reader.LoadAsync(1);
+                return (CommandCode)reader.ReadByte();
+            }
+            
+        }
+
         private async Task HandleGetScenes(IOutputStream outputStream)
         {
-            var scenes = this.ghast.GetScenes().ToEnumerable();
+            var scenes = await this.ghast.GetScenes();
             var data = JsonConvert.SerializeObject(scenes);
             using (var writer = new DataWriter(outputStream))
             {
-                writer.WriteUInt32(writer.MeasureString(data));
-                writer.WriteString(data);
+                writer.WriteBytes(Encoding.UTF8.GetBytes(data));
                 await writer.StoreAsync();
                 await writer.FlushAsync();
                 writer.DetachStream();

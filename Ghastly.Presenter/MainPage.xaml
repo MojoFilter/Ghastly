@@ -8,6 +8,6 @@
     mc:Ignorable="d">
 
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-
+        <Image Source="Assets/Splash.jpg" Stretch="Fill" />
     </Grid>
 </Page>

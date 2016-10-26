@@ -6,6 +6,7 @@ using System.Net.Sockets;
 using System.Reactive.Linq;
 using System.Text;
 using Newtonsoft.Json;
+using System.Linq;
 
 namespace Ghastly.Io.Test
 {
@@ -34,7 +35,7 @@ namespace Ghastly.Io.Test
                 .GetScenes(() =>
                 {
                     called = true;
-                    return Observable.Empty<SceneDescription>();
+                    return Task.FromResult(Enumerable.Empty<SceneDescription>());
                 });
             var listener = new TcpGhastlyServiceListener(service, port);
             await listener.Listen();
@@ -54,7 +55,7 @@ namespace Ghastly.Io.Test
             var expectedResult = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(results));
 
             var service = new StubIGhastlyService()
-                .GetScenes(() => results.ToObservable());
+                .GetScenes(() => Task.FromResult(results.AsEnumerable()));
             var listener = new TcpGhastlyServiceListener(service, port);
             await listener.Listen();
             using (var socket = await ConnectSocket())

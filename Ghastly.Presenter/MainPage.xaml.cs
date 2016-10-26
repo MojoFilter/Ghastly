@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.UI.Xaml;
@@ -32,18 +33,25 @@ namespace Ghastly.Presenter
             this.Loaded += MainPage_Loaded;
         }
 
-        private void MainPage_Loaded(object sender, RoutedEventArgs e)
+        private async void MainPage_Loaded(object sender, RoutedEventArgs e)
         {
             this.listener = new TcpGhastlyServiceListener(new GhastlyService());
+            await this.listener.Listen();
         }
 
         class GhastlyService : IGhastlyService
         {
-            public IObservable<SceneDescription> GetScenes() => Observable.Create<SceneDescription>(obs => () =>
+            //public IObservable<SceneDescription> GetScenes() => Observable.Create<SceneDescription>(obs => () =>
+            //{
+            //    obs.OnNext(new SceneDescription() { Name = "A Skeleton Band" });
+            //    obs.OnNext(new SceneDescription() { Name = "Menstrual Walls" });
+            //    obs.OnCompleted();
+            //});
+            public Task<IEnumerable<SceneDescription>> GetScenes() => Task.FromResult(new[]
             {
-                obs.OnNext(new SceneDescription() { Name = "A Skeleton Band" });
-                obs.OnNext(new SceneDescription() { Name = "Menstrual Walls" });
-            });
+                new SceneDescription() { Name = "A Skeleton Band" },
+                new SceneDescription() { Name = "Menstrual Walls" }
+            }.AsEnumerable());
         }
     }
 }

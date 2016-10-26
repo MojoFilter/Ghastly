@@ -29,7 +29,7 @@ namespace Ghastly.Controller.Uwp
         public MainPage()
         {
             this.InitializeComponent();
-            this.selection.ViewModel = new SceneSelectionViewModel(new TcpGhastlyService("192.168.0.19", 11337));
+            this.selection.ViewModel = new SceneSelectionViewModel(new TcpGhastlyService("rhubarb", 11337));
         }
 
         //private VM ViewModel { get; set; }

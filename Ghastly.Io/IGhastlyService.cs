@@ -8,6 +8,6 @@ namespace Ghastly.Io
 {
     public interface IGhastlyService
     {
-        IObservable<SceneDescription> GetScenes();
+        Task<IEnumerable<SceneDescription>> GetScenes();
     }
 }

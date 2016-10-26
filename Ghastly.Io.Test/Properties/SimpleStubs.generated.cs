@@ -22,12 +22,12 @@ namespace Ghastly.Io
     {
         private readonly StubContainer<StubIGhastlyService> _stubs = new StubContainer<StubIGhastlyService>();
 
-        global::System.IObservable<global::Ghastly.Io.SceneDescription> global::Ghastly.Io.IGhastlyService.GetScenes()
+        global::System.Threading.Tasks.Task<global::System.Collections.Generic.IEnumerable<global::Ghastly.Io.SceneDescription>> global::Ghastly.Io.IGhastlyService.GetScenes()
         {
             return _stubs.GetMethodStub<GetScenes_Delegate>("GetScenes").Invoke();
         }
 
-        public delegate global::System.IObservable<global::Ghastly.Io.SceneDescription> GetScenes_Delegate();
+        public delegate global::System.Threading.Tasks.Task<global::System.Collections.Generic.IEnumerable<global::Ghastly.Io.SceneDescription>> GetScenes_Delegate();
 
         public StubIGhastlyService GetScenes(GetScenes_Delegate del, int count = Times.Forever, bool overwrite = false)
         {
