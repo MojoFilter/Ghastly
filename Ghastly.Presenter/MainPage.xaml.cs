@@ -3,7 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reactive;
 using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
 using Windows.Foundation;
@@ -51,30 +53,75 @@ namespace Ghastly.Presenter
 
         private async void MainPage_Loaded(object sender, RoutedEventArgs e)
         {
-            this.listener = new TcpGhastlyServiceListener(new GhastlyService());
-            await this.listener.Listen();
-
             StorageFolder folder = await KnownFolders.GetFolderForUserAsync(null /* current user */, KnownFolderId.CameraRoll);
-            var folders = (await folder.GetFoldersAsync()).Select(f => f.Name).ToArray();
-            var files = (await folder.GetFilesAsync()).Select(f=>f.Name).ToArray();
+            var service = new GhastlyService();
+            this.listener = new TcpGhastlyServiceListener(service);
+            service.StartScene
+                .Select(scene => scene.Idle)
+                .ObserveOnDispatcher()
+                .SelectMany(file => this.PlayLoop(file, folder))
+                .Subscribe();
 
-            this.player.Source = MediaSource.CreateFromStorageFile(await folder.GetFileAsync(files.First()));
+            service.StartScene
+                .SelectMany(scene => service.TriggerScene.Select(_ => scene))
+                .ObserveOnDispatcher()
+                .SelectMany(scene => this.PlayOnce(scene.Active, scene.Idle, folder))
+                .Subscribe();
+
+            await this.listener.Listen();
+            service.StartScene.OnNext((await service.GetScenes()).Skip(1).First());
+
+            int currentSceneId = 0;
+            service.StartScene.Select(scene => scene.Id).Subscribe(id => currentSceneId = id);
+            this.Tapped += (s, ee) => service.TriggerScene.OnNext(0);
+        }
+
+        private async Task<Unit> PlayLoop(string fileName, StorageFolder folder)
+        {
             this.player.MediaPlayer.IsLoopingEnabled = true;
+            this.player.MediaPlayer.Source = MediaSource.CreateFromStorageFile(await folder.GetFileAsync(fileName));
+            return Unit.Default;
+        }
+
+        private async Task<Unit> PlayOnce(string fileName, string idleFileName, StorageFolder folder)
+        {
+            this.player.MediaPlayer.IsLoopingEnabled = false;
+            this.player.MediaPlayer.Source = MediaSource.CreateFromStorageFile(await folder.GetFileAsync(fileName));
+            Observable.FromEventPattern(this.player.MediaPlayer, "MediaEnded")
+                .Take(1)
+                .ObserveOnDispatcher()
+                .SelectMany(_ => this.PlayLoop(idleFileName, folder))
+                .Subscribe();
+            return Unit.Default;
         }
 
         class GhastlyService : IGhastlyService
         {
-            //public IObservable<SceneDescription> GetScenes() => Observable.Create<SceneDescription>(obs => () =>
-            //{
-            //    obs.OnNext(new SceneDescription() { Name = "A Skeleton Band" });
-            //    obs.OnNext(new SceneDescription() { Name = "Menstrual Walls" });
-            //    obs.OnCompleted();
-            //});
-            public Task<IEnumerable<SceneDescription>> GetScenes() => Task.FromResult(new[]
+            private SceneDescription[] scenes = new[]
             {
-                new SceneDescription() { Name = "A Skeleton Band" },
-                new SceneDescription() { Name = "Menstrual Walls" }
-            }.AsEnumerable());
+                new SceneDescription()
+                {
+                    Id = 0,
+                    Name = "Boneyard Band Black Background",
+                    Idle = "BC_Buffer_Curtain_Win_Black_H.mp4",
+                    Active = "BC_BoneyardBand_Win_Black_H.mp4"
+                },
+                new SceneDescription()
+                {
+                    Id = 1,
+                    Name = "Bleeding Wall Spotlight",
+                    Idle ="BW_Buffer_Wall_Spotlight_H.mp4",
+                    Active = "BW_DrippingBlood_Wall_Spotlight_H.mp4"
+                }
+            };
+
+            public Task<IEnumerable<SceneDescription>> GetScenes() => Task.FromResult(scenes.AsEnumerable());
+
+            private Subject<SceneDescription> _StartScene = new Subject<SceneDescription>();
+            public ISubject<SceneDescription> StartScene => _StartScene;
+
+            private Subject<int> _TriggerScene = new Subject<int>();
+            public ISubject<int> TriggerScene => _TriggerScene;
         }
     }
 }
