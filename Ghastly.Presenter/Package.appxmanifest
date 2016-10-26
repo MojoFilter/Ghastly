@@ -26,5 +26,6 @@
     <Capability Name="internetClientServer" />
     <Capability Name="privateNetworkClientServer" />
     <Capability Name="internetClient" />
+    <uap:Capability Name="videosLibrary" />
   </Capabilities>
 </Package>
