@@ -1,4 +1,5 @@
 ﻿using Ghastly.Controller.Uwp.ViewModels;
+using Ghastly.Controller.Uwp.Views;
 using Ghastly.Io;
 using System;
 using System.Collections.Generic;
@@ -29,31 +30,50 @@ namespace Ghastly.Controller.Uwp
         public MainPage()
         {
             this.InitializeComponent();
-            this.selection.ViewModel = new SceneSelectionViewModel(new TcpGhastlyService("bahamut", 11337));
+            this.ViewModel = new SceneSelectionViewModel();// new TcpGhastlyService("bahamut", 11337));
         }
 
-        //private VM ViewModel { get; set; }
 
-        //private class VM : ReactiveObject
-        //{
-        //    public VM()
-        //    {
-        //        var src = Observable.Interval(TimeSpan.FromSeconds(1.0)).Publish().RefCount();
 
-        //        src.Subscribe(t => Debug.WriteLine(t));
-        //        src.ObserveOn(RxApp.MainThreadScheduler).Subscribe(t => this.Reg = t);
-        //        this._Help = src.ToProperty(this, x => x.Help,0, RxApp.MainThreadScheduler);
-        //    }
+        public SceneSelectionViewModel ViewModel
+        {
+            get { return (SceneSelectionViewModel)GetValue(ViewModelProperty); }
+            set { SetValue(ViewModelProperty, value); }
+        }
 
-        //    private long _Reg;
-        //    public long Reg
-        //    {
-        //        get { return this._Reg; }
-        //        set { this.RaiseAndSetIfChanged(ref _Reg, value); }
-        //    }
+        // Using a DependencyProperty as the backing store for ViewModel.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty ViewModelProperty =
+            DependencyProperty.Register("ViewModel", typeof(SceneSelectionViewModel), typeof(MainPage), new PropertyMetadata(null));
 
-        //    private ObservableAsPropertyHelper<long> _Help;
-        //    public long Help { get { return _Help.Value; } }
-        //}
+
+
+        protected override void OnNavigatedTo(NavigationEventArgs e)
+        {
+            this.ScenarioFrame.Navigate(typeof(SettingsPage));
+        }
+
+        private void Hamburger_Click(object sender, RoutedEventArgs e)
+        {
+            this.Splitter.IsPaneOpen = !this.Splitter.IsPaneOpen;
+        }
+
+        private void ScenarioControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (e.AddedItems.Any())
+            {
+                var name = e.AddedItems.OfType<SceneDescription>().Select(s => s.Name).FirstOrDefault();
+                this.ScenarioFrame.Navigate(typeof(ScenePage), name);
+            }
+        }
+
+        private void Footer_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void Settings_Click(object sender, RoutedEventArgs e)
+        {
+            this.ScenarioFrame.Navigate(typeof(SettingsPage));
+        }
     }
 }
