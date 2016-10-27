@@ -12,6 +12,7 @@ using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.Media.Core;
 using Windows.Storage;
+using Windows.Storage.Streams;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
@@ -68,18 +69,44 @@ namespace Ghastly.Presenter
                 .SelectMany(scene => this.PlayOnce(scene.Active, scene.Idle, folder))
                 .Subscribe();
 
+            this.player.IsFullWindow = true;
+
             await this.listener.Listen();
             service.StartScene.OnNext((await service.GetScenes()).Skip(1).First());
 
             int currentSceneId = 0;
             service.StartScene.Select(scene => scene.Id).Subscribe(id => currentSceneId = id);
-            this.Tapped += (s, ee) => service.TriggerScene.OnNext(0);
+            this.Tapped += (s, ee) => service.ActivateScene();
+
+        }
+
+        /// <summary>
+        /// Loads the byte data from a StorageFile
+        /// </summary>
+        /// <param name="file">The file to read</param>
+        public async Task<byte[]> ReadFile(StorageFile file)
+        {
+            byte[] fileBytes = null;
+            using (IRandomAccessStreamWithContentType stream = await file.OpenReadAsync())
+            {
+                fileBytes = new byte[stream.Size];
+                using (DataReader reader = new DataReader(stream))
+                {
+                    await reader.LoadAsync((uint)stream.Size);
+                    reader.ReadBytes(fileBytes);
+                }
+            }
+
+            return fileBytes;
         }
 
         private async Task<Unit> PlayLoop(string fileName, StorageFolder folder)
         {
             this.player.MediaPlayer.IsLoopingEnabled = true;
-            this.player.MediaPlayer.Source = MediaSource.CreateFromStorageFile(await folder.GetFileAsync(fileName));
+            var file = await folder.GetFileAsync(fileName);
+            var data = await this.ReadFile(file);
+            var stream = new MemoryStream(data).AsRandomAccessStream();
+            this.player.MediaPlayer.Source = MediaSource.CreateFromStream(stream, file.ContentType);
             return Unit.Default;
         }
 
@@ -117,11 +144,13 @@ namespace Ghastly.Presenter
 
             public Task<IEnumerable<SceneDescription>> GetScenes() => Task.FromResult(scenes.AsEnumerable());
 
+            public Task ActivateScene() => Task.Run(() => this._TriggerScene.OnNext(Unit.Default));
+
             private Subject<SceneDescription> _StartScene = new Subject<SceneDescription>();
             public ISubject<SceneDescription> StartScene => _StartScene;
 
-            private Subject<int> _TriggerScene = new Subject<int>();
-            public ISubject<int> TriggerScene => _TriggerScene;
+            private Subject<Unit> _TriggerScene = new Subject<Unit>();
+            public ISubject<Unit> TriggerScene => _TriggerScene;
         }
     }
 }

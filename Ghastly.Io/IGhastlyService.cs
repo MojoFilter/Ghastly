@@ -9,5 +9,6 @@ namespace Ghastly.Io
     public interface IGhastlyService
     {
         Task<IEnumerable<SceneDescription>> GetScenes();
+        Task ActivateScene();
     }
 }

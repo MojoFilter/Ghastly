@@ -12,5 +12,6 @@
     <StackPanel>
         <ListBox ItemsSource="{x:Bind ViewModel.Scenes, Mode=OneWay}" DisplayMemberPath="Name" />
         <Button Command="{x:Bind ViewModel.LoadScenes}">Load Them Scenes</Button>
+        <Button Command="{x:Bind ViewModel.Trigger}">TRIGGERED!</Button>
     </StackPanel>
 </UserControl>

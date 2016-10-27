@@ -34,5 +34,18 @@ namespace Ghastly.Io
             _stubs.SetMethodStub(del, count, overwrite);
             return this;
         }
+
+        global::System.Threading.Tasks.Task global::Ghastly.Io.IGhastlyService.ActivateScene()
+        {
+            return _stubs.GetMethodStub<ActivateScene_Delegate>("ActivateScene").Invoke();
+        }
+
+        public delegate global::System.Threading.Tasks.Task ActivateScene_Delegate();
+
+        public StubIGhastlyService ActivateScene(ActivateScene_Delegate del, int count = Times.Forever, bool overwrite = false)
+        {
+            _stubs.SetMethodStub(del, count, overwrite);
+            return this;
+        }
     }
 }

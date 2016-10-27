@@ -68,6 +68,10 @@ namespace UapVideoTest
 
         class GhastServer : IGhastlyService
         {
+            public Task ActivateScene()
+            {
+                throw new NotImplementedException();
+            }
 
             Task<IEnumerable<SceneDescription>> IGhastlyService.GetScenes() => Task.FromResult(new[]
             {

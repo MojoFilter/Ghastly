@@ -113,6 +113,7 @@
     <Compile Include="SceneDescription.cs" />
     <Compile Include="TcpCommandListener.cs" />
     <Compile Include="TcpGhastlyService.cs" />
+    <Compile Include="TcpGhastlyServiceListener.cs" />
     <EmbeddedResource Include="Properties\Ghastly.Io.rd.xml" />
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">

@@ -26,18 +26,12 @@ namespace Ghastly.Io
             this.port = port.ToString();
         }
 
+        public async Task ActivateScene() =>
+            (await this.SendCommand(CommandCode.ActivateScene)).Dispose();
+
         public async Task<IEnumerable<SceneDescription>> GetScenes() 
         {
-            var socket = new StreamSocket();
-            await socket.ConnectAsync(this.host, this.port);
-            using (var writer = new DataWriter(socket.OutputStream))
-            {
-                writer.WriteByte((byte)CommandCode.GetScenes);
-                await writer.StoreAsync();
-                await writer.FlushAsync();
-                writer.DetachStream();
-            }
-
+            using (var socket = await this.SendCommand(CommandCode.GetScenes))
             using (var reader = new DataReader(socket.InputStream))
             {
                 reader.InputStreamOptions = InputStreamOptions.Partial;
@@ -46,69 +40,26 @@ namespace Ghastly.Io
                 return JsonConvert.DeserializeObject<IEnumerable<SceneDescription>>(data);
             }
         }
-    }
 
-    public class TcpGhastlyServiceListener
-    {
-        private readonly StreamSocketListener listener;
-        private readonly int port;
-        private readonly IGhastlyService ghast;
-
-        public TcpGhastlyServiceListener(IGhastlyService ghast, int port = TcpGhastlyService.DefaultPort)
+        private async Task<StreamSocket> SendCommand(CommandCode cmd)
         {
-            this.port = port;
-            this.ghast = ghast;
-            this.listener = new StreamSocketListener();
-            this.listener.ConnectionReceived += Listener_ConnectionReceived;
-        }
-
-        public async Task Listen()
-        {
-            await this.listener.BindServiceNameAsync(this.port.ToString());
-        }
-
-        private async void Listener_ConnectionReceived(StreamSocketListener sender, StreamSocketListenerConnectionReceivedEventArgs args)
-        {
-            try
+            var socket = new StreamSocket();
+            await socket.ConnectAsync(this.host, this.port);
+            using (var writer = new DataWriter(socket.OutputStream))
             {
-                var command = await this.ReadCommand(args.Socket);
-                switch (command)
-                {
-                    case CommandCode.GetScenes:
-                        await this.HandleGetScenes(args.Socket.OutputStream);
-                        break;
-                }
-                args.Socket.Dispose();
-            }
-            finally { }
-        }
-
-        private async Task<CommandCode> ReadCommand(StreamSocket socket)
-        {
-            using (var reader = new DataReader(socket.InputStream))
-            {
-                await reader.LoadAsync(1);
-                return (CommandCode)reader.ReadByte();
-            }
-            
-        }
-
-        private async Task HandleGetScenes(IOutputStream outputStream)
-        {
-            var scenes = await this.ghast.GetScenes();
-            var data = JsonConvert.SerializeObject(scenes);
-            using (var writer = new DataWriter(outputStream))
-            {
-                writer.WriteBytes(Encoding.UTF8.GetBytes(data));
+                writer.WriteByte((byte)cmd);
                 await writer.StoreAsync();
-                await writer.FlushAsync();
                 writer.DetachStream();
             }
+            return socket;
         }
     }
+
+    
 
     public enum CommandCode : byte
     {
-        GetScenes
+        GetScenes,
+        ActivateScene
     }
 }
