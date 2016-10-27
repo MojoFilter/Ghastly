@@ -15,7 +15,7 @@ namespace Ghastly.Io
         private readonly int port;
         private readonly IGhastlyService ghast;
 
-        public TcpGhastlyServiceListener(IGhastlyService ghast, int port = TcpGhastlyService.DefaultPort)
+        public TcpGhastlyServiceListener(IGhastlyService ghast, int port = TcpGhastlyClient.DefaultPort)
         {
             this.port = port;
             this.ghast = ghast;

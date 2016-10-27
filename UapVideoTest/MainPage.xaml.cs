@@ -62,13 +62,23 @@ namespace UapVideoTest
 
         private async void Send_Click(object sender, RoutedEventArgs e)
         {
-            IGhastlyService client = new TcpGhastlyService(this.host, this.port);
+            IGhastlyService client = new TcpGhastlyClient(this.host, this.port);
             var scenes = (await client.GetScenes()).ToList();
         }
 
         class GhastServer : IGhastlyService
         {
             public Task ActivateScene()
+            {
+                throw new NotImplementedException();
+            }
+
+            public Task BeginScene(int sceneId)
+            {
+                throw new NotImplementedException();
+            }
+
+            public Task<int> GetCurrentSceneId()
             {
                 throw new NotImplementedException();
             }

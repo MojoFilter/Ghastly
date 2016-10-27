@@ -125,6 +125,11 @@ namespace Ghastly.Presenter
 
         class GhastlyService : IGhastlyService
         {
+            public GhastlyService()
+            {
+
+            }
+
             private SceneDescription[] scenes = new[]
             {
                 new SceneDescription()
@@ -147,7 +152,11 @@ namespace Ghastly.Presenter
 
             public Task ActivateScene() => Task.Run(() => this._TriggerScene.OnNext(Unit.Default));
 
-            private Subject<SceneDescription> _StartScene = new Subject<SceneDescription>();
+            public Task<int> GetCurrentSceneId() => Task.FromResult(_StartScene.Value.Id);
+
+            public Task BeginScene(int sceneId) => Task.Run(() => this.StartScene.OnNext(this.scenes.FirstOrDefault(s => s.Id == sceneId)));
+
+            private BehaviorSubject<SceneDescription> _StartScene = new BehaviorSubject<SceneDescription>(null);
             public ISubject<SceneDescription> StartScene => _StartScene;
 
             private Subject<Unit> _TriggerScene = new Subject<Unit>();

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Ghastly.Controller.Uwp.ViewModels;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -25,6 +26,13 @@ namespace Ghastly.Controller.Uwp.Views
         public SettingsPage()
         {
             this.InitializeComponent();
+        }
+
+        public SceneSelectionViewModel ViewModel { get; private set; }
+
+        protected override void OnNavigatedTo(NavigationEventArgs e)
+        {
+            this.ViewModel = e.Parameter as SceneSelectionViewModel;
         }
     }
 }

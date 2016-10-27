@@ -47,5 +47,31 @@ namespace Ghastly.Io
             _stubs.SetMethodStub(del, count, overwrite);
             return this;
         }
+
+        global::System.Threading.Tasks.Task<int> global::Ghastly.Io.IGhastlyService.GetCurrentSceneId()
+        {
+            return _stubs.GetMethodStub<GetCurrentSceneId_Delegate>("GetCurrentSceneId").Invoke();
+        }
+
+        public delegate global::System.Threading.Tasks.Task<int> GetCurrentSceneId_Delegate();
+
+        public StubIGhastlyService GetCurrentSceneId(GetCurrentSceneId_Delegate del, int count = Times.Forever, bool overwrite = false)
+        {
+            _stubs.SetMethodStub(del, count, overwrite);
+            return this;
+        }
+
+        global::System.Threading.Tasks.Task global::Ghastly.Io.IGhastlyService.BeginScene(int sceneId)
+        {
+            return _stubs.GetMethodStub<BeginScene_Int32_Delegate>("BeginScene").Invoke(sceneId);
+        }
+
+        public delegate global::System.Threading.Tasks.Task BeginScene_Int32_Delegate(int sceneId);
+
+        public StubIGhastlyService BeginScene(BeginScene_Int32_Delegate del, int count = Times.Forever, bool overwrite = false)
+        {
+            _stubs.SetMethodStub(del, count, overwrite);
+            return this;
+        }
     }
 }

@@ -10,5 +10,7 @@ namespace Ghastly.Io
     {
         Task<IEnumerable<SceneDescription>> GetScenes();
         Task ActivateScene();
+        Task<int> GetCurrentSceneId();
+        Task BeginScene(int sceneId);
     }
 }

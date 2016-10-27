@@ -21,8 +21,12 @@ namespace Ghastly.Controller.Uwp.ViewModels
         private ObservablePropertySource<IEnumerable<SceneDescription>> _Scenes;
         public IEnumerable<SceneDescription> Scenes { get { return _Scenes.Value; } }
 
+        private ObservablePropertySource<SceneDescription> _CurrentScene;
+        public SceneDescription CurrentScene { get { return _CurrentScene.Value; } }
+
         public ReactiveCommand<Unit, IEnumerable<SceneDescription>> LoadScenes { get; }
         public ReactiveCommand Trigger { get; }
+        public ReactiveCommand<int, Unit> BeginScene { get; }
 
         public SceneSelectionViewModel(IGhastlyService ghast = null)
         {
@@ -30,11 +34,23 @@ namespace Ghastly.Controller.Uwp.ViewModels
             this.LoadScenes = ReactiveCommand.CreateFromTask(ghast.GetScenes);
             this._Scenes = this.LoadScenes.ObserveOnDispatcher().StartWith(MockScenes).ToProperty(this, x => x.Scenes);
             this.Trigger = ReactiveCommand.CreateFromTask(ghast.ActivateScene);
+            this.BeginScene = ReactiveCommand.CreateFromTask<int>(ghast.BeginScene);
+
+            this._CurrentScene =
+                Observable.Timer(TimeSpan.Zero, TimeSpan.FromSeconds(2.0))
+                    .SelectMany(_ => ghast.GetCurrentSceneId())
+                    .Retry()
+                    .Select(id => this.Scenes.FirstOrDefault(s => s.Id == id))
+                    .ToProperty(this, x => x.CurrentScene);
         }
 
         private class MockGhast : IGhastlyService
         {
             public Task ActivateScene() => Task.CompletedTask;
+
+            public Task BeginScene(int sceneId) => Task.CompletedTask;
+
+            public Task<int> GetCurrentSceneId() => Task.FromResult(0);
 
             public Task<IEnumerable<SceneDescription>> GetScenes() => Task.FromResult(Enumerable.Empty<SceneDescription>());
         }

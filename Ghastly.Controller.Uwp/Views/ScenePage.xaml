@@ -8,6 +8,10 @@
     mc:Ignorable="d">
 
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-        <TextBlock x:Name="SceneTitle" Style="{StaticResource SampleHeaderTextStyle}" />
+        <RelativePanel>
+            <TextBlock x:Name="SceneTitle" Style="{StaticResource SampleHeaderTextStyle}" />
+            <Button x:Name="StartButton" RelativePanel.Below="SceneTitle" Margin="5" Command="{x:Bind ViewModel.BeginScene}" CommandParameter="{x:Bind Scene.Id}">Start</Button>
+            <Button RelativePanel.RightOf="StartButton" RelativePanel.Below="SceneTitle" Margin="5" Click="Button_Click">Trigger</Button>
+        </RelativePanel>
     </Grid>
 </Page>

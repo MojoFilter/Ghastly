@@ -10,7 +10,8 @@
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
         <RelativePanel>
             <TextBlock x:Name="HostLabel" Margin="0,10,10,10">Host:</TextBlock>
-            <TextBox RelativePanel.RightOf="HostLabel" RelativePanel.AlignVerticalCenterWith="HostLabel" />
+            <TextBox x:Name="HostTextBox" RelativePanel.RightOf="HostLabel" RelativePanel.AlignVerticalCenterWith="HostLabel" MinWidth="150" />
+            <Button RelativePanel.AlignLeftWith="HostTextBox" RelativePanel.Below="HostTextBox" Margin="0,10" Command="{x:Bind ViewModel.LoadScenes}">Load Scenes</Button>
         </RelativePanel>
     </Grid>
 </Page>

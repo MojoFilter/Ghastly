@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Ghastly.Controller.Uwp.ViewModels;
+using Ghastly.Io;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -22,14 +24,25 @@ namespace Ghastly.Controller.Uwp.Views
     /// </summary>
     public sealed partial class ScenePage : Page
     {
+        private SceneSelectionViewModel ViewModel { get; set; }
         public ScenePage()
         {
             this.InitializeComponent();
         }
 
+        public SceneDescription Scene { get; private set; }
+
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
-            this.SceneTitle.Text = e.Parameter as string;
+            var pars = e.Parameter as Tuple<SceneSelectionViewModel, SceneDescription>;
+            this.ViewModel = pars.Item1;
+            this.Scene = pars.Item2;
+            this.SceneTitle.Text = Scene.Name;
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }

@@ -59,10 +59,10 @@ namespace Ghastly.Controller.Uwp
 
         private void ScenarioControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (e.AddedItems.Any())
+            var news = e.AddedItems.OfType<SceneDescription>();
+            if (news.Any())
             {
-                var name = e.AddedItems.OfType<SceneDescription>().Select(s => s.Name).FirstOrDefault();
-                this.ScenarioFrame.Navigate(typeof(ScenePage), name);
+                this.ScenarioFrame.Navigate(typeof(ScenePage), Tuple.Create(this.ViewModel, news.First()));
             }
         }
 

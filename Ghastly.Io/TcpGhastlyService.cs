@@ -14,13 +14,13 @@ using Windows.ApplicationModel.Background;
 
 namespace Ghastly.Io
 {
-    public class TcpGhastlyService : IGhastlyService
+    public class TcpGhastlyClient : IGhastlyService
     {
         public const int DefaultPort = 11337;
         private readonly HostName host;
         private readonly string port;
 
-        public TcpGhastlyService(string host, int port)
+        public TcpGhastlyClient(string host, int port)
         {
             this.host = new HostName(host);
             this.port = port.ToString();
@@ -28,6 +28,27 @@ namespace Ghastly.Io
 
         public async Task ActivateScene() =>
             (await this.SendCommand(CommandCode.ActivateScene)).Dispose();
+
+        public async Task BeginScene(int sceneId)
+        {
+            using (var socket = await this.SendCommand(CommandCode.BeginScene))
+            using (var writer = new DataWriter(socket.OutputStream))
+            {
+                writer.WriteInt32(sceneId);
+                await writer.StoreAsync();
+                writer.DetachStream();
+            }
+        }
+
+        public async Task<int> GetCurrentSceneId()
+        {
+            using (var socket = await this.SendCommand(CommandCode.GetCurrentSceneId))
+            using (var reader = new DataReader(socket.InputStream))
+            {
+                await reader.LoadAsync(1);
+                return (int)reader.ReadByte();
+            }
+        }
 
         public async Task<IEnumerable<SceneDescription>> GetScenes() 
         {
@@ -60,6 +81,8 @@ namespace Ghastly.Io
     public enum CommandCode : byte
     {
         GetScenes,
-        ActivateScene
+        ActivateScene,
+        GetCurrentSceneId,
+        BeginScene
     }
 }
