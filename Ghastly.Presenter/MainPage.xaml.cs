@@ -136,7 +136,7 @@ namespace Ghastly.Presenter
                 new SceneDescription()
                 {
                     Id = 0,
-                    Name = "Boneyard Band Black Background",
+                    Name = "Boneyard Band (Black Background)",
                     Idle = "BC_Buffer_Curtain_Win_Black_H.mp4",
                     Active = "BC_BoneyardBand_Win_Black_H.mp4",
                     Image = "BC_BoneyardBand_Win_Black_H.png"
@@ -144,7 +144,7 @@ namespace Ghastly.Presenter
                 new SceneDescription()
                 {
                     Id = 1,
-                    Name = "Bleeding Wall Spotlight",
+                    Name = "Bleeding Wall (Spotlight)",
                     Idle ="BW_Buffer_Wall_Spotlight_H.mp4",
                     Active = "BW_DrippingBlood_Wall_Spotlight_H.mp4",
                     Image = "BW_DrippingBlood_Wall_Spotlight_H.png"
@@ -164,6 +164,30 @@ namespace Ghastly.Presenter
                     Idle = "TnT_Buffer_Black_H.mp4",
                     Active = "TnT_TreatThief_Win_H.mp4",
                     Image = "TnT_TreatThief_Win_H.png"
+                },
+                new SceneDescription()
+                {
+                    Id = 4,
+                    Name = "Boneyard Band (Shadow)",
+                    Idle = "BC_Buffer_Curtain_Win_Shad_H.mp4",
+                    Active = "BC_BoneyardBand_Win_Shad_H.mp4",
+                    Image = "BC_BoneyardBand_Win_Shad_H.png"
+                },
+                new SceneDescription()
+                {
+                    Id = 5,
+                    Name = "Bleeding Wall (Lightning)",
+                    Idle = "BW_Buffer_Wall_Lightning_H.mp4",
+                    Active = "BW_DrippingBlood_Wall_Lightning_H.mp4",
+                    Image = "BW_Wall_Lightning_H.png"
+                },
+                new SceneDescription()
+                {
+                    Id = 6,
+                    Name = "Bleeding Window",
+                    Idle = "BW_Buffer_Win_H.mp4",
+                    Active = "BW_DrippingBlood_Win_H.mp4",
+                    Image = "BW_DrippingBlood_Win_H.png"
                 }
 
             };
