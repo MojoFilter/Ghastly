@@ -9,9 +9,21 @@
 
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
         <RelativePanel>
-            <TextBlock x:Name="HostLabel" Margin="0,10,10,10">Host:</TextBlock>
-            <TextBox x:Name="HostTextBox" RelativePanel.RightOf="HostLabel" RelativePanel.AlignVerticalCenterWith="HostLabel" MinWidth="150" />
-            <Button RelativePanel.AlignLeftWith="HostTextBox" RelativePanel.Below="HostTextBox" Margin="0,10" Command="{x:Bind ViewModel.LoadScenes}" Click="Button_Click">Load Scenes</Button>
+            <TextBlock x:Name="Title"
+                       Style="{StaticResource SampleHeaderTextStyle}"
+                       Margin="10">Ghastly Configuration</TextBlock>
+            
+            <TextBlock x:Name="HostLabel"
+                       RelativePanel.Below="Title"
+                       Margin="10">Presenter Address:</TextBlock>
+            <TextBox x:Name="HostTextBox" 
+                     RelativePanel.RightOf="HostLabel" 
+                     RelativePanel.AlignVerticalCenterWith="HostLabel" 
+                     MinWidth="150"
+                     PlaceholderText="bahamut"/>
+
+            <Button RelativePanel.Below="HostLabel"
+                    Margin="10" Click="Button_Click_1">Update</Button>
         </RelativePanel>
     </Grid>
 </Page>

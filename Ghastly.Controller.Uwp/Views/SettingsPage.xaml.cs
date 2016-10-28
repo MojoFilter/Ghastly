@@ -27,6 +27,12 @@ namespace Ghastly.Controller.Uwp.Views
         public SettingsPage()
         {
             this.InitializeComponent();
+            App.Active.GhastlyHost
+                .Subscribe(host =>
+                {
+                    this.HostTextBox.Text = null;
+                    this.HostTextBox.PlaceholderText = host;
+                });
         }
 
 
@@ -51,6 +57,11 @@ namespace Ghastly.Controller.Uwp.Views
         private async void Button_Click(object sender, RoutedEventArgs e)
         {
             await this.ViewModel.LoadScenes.Execute();
+        }
+
+        private void Button_Click_1(object sender, RoutedEventArgs e)
+        {
+            App.Active.GhastlyHost.OnNext(this.HostTextBox.Text);
         }
     }
 }

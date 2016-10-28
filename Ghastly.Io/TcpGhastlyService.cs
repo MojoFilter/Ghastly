@@ -18,13 +18,19 @@ namespace Ghastly.Io
     public class TcpGhastlyClient : IGhastlyService
     {
         public const int DefaultPort = 11337;
-        private readonly HostName host;
+        private HostName host;
         private readonly string port;
 
         public TcpGhastlyClient(string host, int port)
         {
             this.host = new HostName(host);
             this.port = port.ToString();
+        }
+
+        public string Host
+        {
+            get { return this.host.RawName; }
+            set { this.host = new HostName(value); }
         }
 
         public async Task ActivateScene() =>

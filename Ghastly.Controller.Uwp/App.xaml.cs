@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reactive.Subjects;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
@@ -31,6 +32,10 @@ namespace Ghastly.Controller.Uwp
             this.InitializeComponent();
             this.Suspending += OnSuspending;
         }
+
+        public static App Active => App.Current as App;
+
+        internal ISubject<string> GhastlyHost { get; } = new BehaviorSubject<string>("bahamut");
 
         /// <summary>
         /// Invoked when the application is launched normally by the end user.  Other entry points
