@@ -41,23 +41,46 @@ namespace Ghastly.Io
                     case CommandCode.ActivateScene:
                         await this.HandleActivateScene();
                         break;
+                    case CommandCode.BeginScene:
+                        await this.HandleBeginScene(args.Socket.InputStream);
+                        break;
                 }
                 args.Socket.Dispose();
             }
             finally { }
         }
 
+        private async Task HandleBeginScene(IInputStream stream)
+        {
+            using (var reader = new DataReader(stream))
+            {
+                await reader.LoadAsync(4);
+                var sceneId = reader.ReadInt32();
+                reader.DetachStream();
+                await this.ghast.BeginScene(sceneId);
+            }
+        }
+
         private Task HandleActivateScene() => this.ghast.ActivateScene();
 
-        private async Task<CommandCode> ReadCommand(StreamSocket socket)
+        private async Task<byte> ReadByte(IInputStream stream)
         {
-            using (var reader = new DataReader(socket.InputStream))
+            using (var reader = new DataReader(stream))
             {
                 await reader.LoadAsync(1);
-                return (CommandCode)reader.ReadByte();
+                try
+                {
+                    return reader.ReadByte();
+                }
+                finally
+                {
+                    reader.DetachStream();
+                }
             }
-
         }
+
+        private async Task<CommandCode> ReadCommand(StreamSocket socket) =>
+            (CommandCode)(await ReadByte(socket.InputStream));
 
         private async Task HandleGetScenes(IOutputStream outputStream)
         {

@@ -66,18 +66,19 @@ namespace Ghastly.Presenter
                 .Subscribe();
 
             service.StartScene
+                .OfType<SceneDescription>()
                 .SelectMany(scene => service.TriggerScene.Select(_ => scene))
                 .ObserveOnDispatcher()
                 .SelectMany(scene => this.PlayOnce(scene.Active, scene.Idle, folder))
                 .Subscribe();
 
-            this.player.IsFullWindow = true;
+            //this.player.IsFullWindow = true;
 
             await this.listener.Listen();
 
             int currentSceneId = 0;
             service.StartScene.OfType<SceneDescription>().Select(scene => scene.Id).Subscribe(id => currentSceneId = id);
-            this.Tapped += (s, ee) => service.ActivateScene();
+            //this.Tapped += (s, ee) => service.ActivateScene();
 
         }
 
