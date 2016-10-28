@@ -77,7 +77,7 @@ namespace Ghastly.Io
             using (var reader = new DataReader(socket.InputStream))
             {
                 reader.InputStreamOptions = InputStreamOptions.Partial;
-                await reader.LoadAsync(1024);
+                await reader.LoadAsync(1024 * 4);
                 var data = reader.ReadString(reader.UnconsumedBufferLength);
                 return JsonConvert.DeserializeObject<IEnumerable<SceneDescription>>(data);
             }
