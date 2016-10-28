@@ -9,6 +9,9 @@ using System.Reactive;
 using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Windows.Storage.Streams;
+using Windows.UI.Xaml.Media;
+using Windows.UI.Xaml.Media.Imaging;
 
 namespace Ghastly.Controller.Uwp.ViewModels
 {
@@ -29,6 +32,7 @@ namespace Ghastly.Controller.Uwp.ViewModels
         public ReactiveCommand<Unit, IEnumerable<SceneDescription>> LoadScenes { get; }
         public ReactiveCommand Trigger { get; }
         public ReactiveCommand<int, Unit> BeginScene { get; }
+        public ReactiveCommand<int, ImageSource> GetSceneImage { get; }
 
         public SceneSelectionViewModel(IGhastlyService ghast = null)
         {
@@ -42,9 +46,22 @@ namespace Ghastly.Controller.Uwp.ViewModels
             this.Trigger = ReactiveCommand.CreateFromTask(ghast.ActivateScene);
             this.BeginScene = ReactiveCommand.CreateFromTask<int>(ghast.BeginScene);
 
-            this.LoadScenes.Subscribe(scenes => Debug.Write(scenes));
+            this.GetSceneImage = ReactiveCommand.CreateFromTask<int, ImageSource>(async sceneId =>
+            {
+                var data = await ghast.GetSceneImage(sceneId);
+                using (var stream = new InMemoryRandomAccessStream())
+                {
+                    using (var writer = new DataWriter(stream.GetOutputStreamAt(0)))
+                    {
+                        writer.WriteBytes(data);
+                        await writer.StoreAsync();
+                    }
+                    var image = new BitmapImage();
+                    await image.SetSourceAsync(stream);
+                    return image;
+                }
+            });
 
-            ((INotifyPropertyChanged)this).PropertyChanged += SceneSelectionViewModel_PropertyChanged;
             //this._CurrentScene =
             //    Observable.Timer(TimeSpan.Zero, TimeSpan.FromSeconds(2.0))
             //        .SelectMany(_ => ghast.GetCurrentSceneId())
@@ -52,6 +69,7 @@ namespace Ghastly.Controller.Uwp.ViewModels
             //        .Select(id => this.Scenes.FirstOrDefault(s => s.Id == id))
             //        .ToProperty(this, x => x.CurrentScene);
         }
+        
 
         private void SceneSelectionViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {

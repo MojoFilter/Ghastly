@@ -1,18 +1,30 @@
-﻿<Page
-    x:Class="Ghastly.Controller.Uwp.Views.ScenePage"
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:Ghastly.Controller.Uwp.Views"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    mc:Ignorable="d">
+﻿<Page x:Class="Ghastly.Controller.Uwp.Views.ScenePage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:local="using:Ghastly.Controller.Uwp.Views"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      mc:Ignorable="d">
 
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
         <RelativePanel>
-            <TextBlock x:Name="SceneTitle" Style="{StaticResource SampleHeaderTextStyle}" />
-            <Button x:Name="StartButton" RelativePanel.Below="SceneTitle" Margin="5" Command="{x:Bind ViewModel.BeginScene}" CommandParameter="{x:Bind Scene.Id}">Start</Button>
-            <Button RelativePanel.RightOf="StartButton" RelativePanel.Below="SceneTitle" Margin="5" 
-                    Command="{x:Bind ViewModel.Trigger}">Trigger</Button>
+            <TextBlock x:Name="SceneTitle"
+                       Style="{StaticResource SampleHeaderTextStyle}"
+                       Margin="10" />
+            <Image x:Name="PreviewImage"
+                   RelativePanel.Below="SceneTitle"
+                   Margin="10"
+                   Height="450"
+                   Width="800" />
+            <Button x:Name="StartButton"
+                    RelativePanel.Below="PreviewImage"
+                    Margin="10"
+                    Command="{x:Bind ViewModel.BeginScene}"
+                    CommandParameter="{x:Bind Scene.Id}">Start Scene</Button>
+            <Button RelativePanel.RightOf="StartButton"
+                    RelativePanel.Below="PreviewImage"
+                    Margin="0,10"
+                    Command="{x:Bind ViewModel.Trigger}">Trigger Action</Button>
         </RelativePanel>
     </Grid>
 </Page>

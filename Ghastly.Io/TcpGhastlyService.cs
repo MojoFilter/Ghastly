@@ -33,7 +33,14 @@ namespace Ghastly.Io
         public async Task BeginScene(int sceneId)
         {
             using (var socket = await this.SendCommand(CommandCode.BeginScene))
-            using (var writer = new DataWriter(socket.OutputStream))
+            {
+                await WriteSceneId(sceneId, socket.OutputStream);
+            }
+        }
+
+        private async Task WriteSceneId(int sceneId, IOutputStream stream)
+        {
+            using (var writer = new DataWriter(stream))
             {
                 writer.WriteInt32(sceneId);
                 await writer.StoreAsync();
@@ -56,6 +63,7 @@ namespace Ghastly.Io
             using (var socket = await this.SendCommand(CommandCode.GetSceneImage))
             using (var reader = new DataReader(socket.InputStream))
             {
+                await WriteSceneId(sceneId, socket.OutputStream);
                 await reader.LoadAsync(4);
                 var length = reader.ReadUInt32();
                 await reader.LoadAsync(length);
