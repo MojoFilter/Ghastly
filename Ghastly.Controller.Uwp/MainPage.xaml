@@ -28,11 +28,22 @@
         <SplitView x:Name="Splitter" IsPaneOpen="True" Grid.Column="1" DisplayMode="Inline" Grid.Row="1">
             <SplitView.Pane>
                 <RelativePanel Margin="10,0,0,0">
-                    <ToggleButton Style="{StaticResource SymbolButton}" Click="Settings_Click" RelativePanel.AlignRightWithPanel="True" Margin="0,10,0,0">
+                    <ToggleButton x:Name="SettingsButton"
+                                  Style="{StaticResource SymbolButton}" 
+                                  Click="Settings_Click"
+                                  RelativePanel.LeftOf="RefreshButton"
+                                  Margin="0,10,0,0">
                         <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE713;" Margin="0,10,0,0"/>
                     </ToggleButton>
+                    <ToggleButton x:Name="RefreshButton" 
+                            Command="{x:Bind ViewModel.LoadScenes}"
+                            Style="{StaticResource SymbolButton}" 
+                            RelativePanel.AlignRightWithPanel="True" 
+                            Margin="0,10,0,0">
+                        <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE72C;" Margin="0,10,0,0"/>
+                    </ToggleButton>
                     <TextBlock x:Name="SampleTitle" Text="Scenes" Style="{StaticResource SampleHeaderTextStyle}" TextWrapping="Wrap" Margin="0,10,0,0"/>
-                    <ListBox x:Name="ScenarioControl" ItemsSource="{x:Bind ViewModel.Scenes}" SelectionChanged="ScenarioControl_SelectionChanged"
+                    <ListBox x:Name="ScenarioControl" ItemsSource="{x:Bind ViewModel.Scenes, Mode=OneWay}" SelectionChanged="ScenarioControl_SelectionChanged"
                  SelectionMode="Single" HorizontalAlignment="Left" Background="Transparent" BorderThickness="0"
                  VerticalAlignment="Top" RelativePanel.Below="SampleTitle" Margin="0,10,0,0" RelativePanel.Above="FooterPanel">
                         <ListBox.ItemTemplate>

@@ -30,7 +30,7 @@ namespace Ghastly.Controller.Uwp
         public MainPage()
         {
             this.InitializeComponent();
-            this.ViewModel = new SceneSelectionViewModel();// new TcpGhastlyService("bahamut", 11337));
+            this.ViewModel = new SceneSelectionViewModel(new TcpGhastlyClient("bahamut", 11337));
         }
 
 
@@ -49,7 +49,7 @@ namespace Ghastly.Controller.Uwp
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
-            this.ScenarioFrame.Navigate(typeof(SettingsPage));
+            this.ScenarioFrame.Navigate(typeof(SettingsPage), this.ViewModel);
         }
 
         private void Hamburger_Click(object sender, RoutedEventArgs e)
@@ -75,5 +75,6 @@ namespace Ghastly.Controller.Uwp
         {
             this.ScenarioFrame.Navigate(typeof(SettingsPage));
         }
+
     }
 }

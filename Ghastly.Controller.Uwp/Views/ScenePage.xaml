@@ -11,7 +11,8 @@
         <RelativePanel>
             <TextBlock x:Name="SceneTitle" Style="{StaticResource SampleHeaderTextStyle}" />
             <Button x:Name="StartButton" RelativePanel.Below="SceneTitle" Margin="5" Command="{x:Bind ViewModel.BeginScene}" CommandParameter="{x:Bind Scene.Id}">Start</Button>
-            <Button RelativePanel.RightOf="StartButton" RelativePanel.Below="SceneTitle" Margin="5" Click="Button_Click">Trigger</Button>
+            <Button RelativePanel.RightOf="StartButton" RelativePanel.Below="SceneTitle" Margin="5" 
+                    Command="{x:Bind ViewModel.Trigger}">Trigger</Button>
         </RelativePanel>
     </Grid>
 </Page>
