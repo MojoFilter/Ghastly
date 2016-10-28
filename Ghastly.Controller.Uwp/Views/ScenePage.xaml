@@ -16,6 +16,12 @@
                    Margin="10"
                    Height="450"
                    Width="800" />
+            <ProgressRing x:Name="ImageProgress"
+                          RelativePanel.AlignVerticalCenterWith="PreviewImage"
+                          RelativePanel.AlignHorizontalCenterWith="PreviewImage"
+                          IsActive="True"
+                          Width="100"
+                          Height="100" />
             <Button x:Name="StartButton"
                     RelativePanel.Below="PreviewImage"
                     Margin="10"

@@ -40,6 +40,7 @@ namespace Ghastly.Controller.Uwp.Views
             this.Scene = pars.Item2;
             this.SceneTitle.Text = Scene.Name;
             this.PreviewImage.Source = await this.ViewModel.GetSceneImage.Execute(this.Scene.Id).ObserveOnDispatcher();
+            this.ImageProgress.IsActive = false;
         }
     }
 }
