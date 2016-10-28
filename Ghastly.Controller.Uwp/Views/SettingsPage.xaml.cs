@@ -30,7 +30,7 @@ namespace Ghastly.Controller.Uwp.Views
             App.Active.GhastlyHost
                 .Subscribe(host =>
                 {
-                    this.HostTextBox.Text = null;
+                    this.HostTextBox.ClearValue(TextBox.TextProperty);
                     this.HostTextBox.PlaceholderText = host;
                 });
         }

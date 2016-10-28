@@ -32,7 +32,7 @@ namespace Ghastly.Controller.Uwp
             this.InitializeComponent();
             var client = new TcpGhastlyClient("bahamut", 11337);
             App.Active.GhastlyHost.Subscribe(host => client.Host = host);
-            this.ViewModel = new SceneSelectionViewModel();
+            this.ViewModel = new SceneSelectionViewModel(client);
         }
 
 
