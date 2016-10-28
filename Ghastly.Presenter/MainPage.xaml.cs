@@ -59,6 +59,7 @@ namespace Ghastly.Presenter
             var service = new GhastlyService();
             this.listener = new TcpGhastlyServiceListener(service);
             service.StartScene
+                .OfType<SceneDescription>()
                 .Select(scene => scene.Idle)
                 .ObserveOnDispatcher()
                 .SelectMany(file => this.PlayLoop(file, folder))
@@ -73,10 +74,9 @@ namespace Ghastly.Presenter
             this.player.IsFullWindow = true;
 
             await this.listener.Listen();
-            service.StartScene.OnNext((await service.GetScenes()).Skip(1).First());
 
             int currentSceneId = 0;
-            service.StartScene.Select(scene => scene.Id).Subscribe(id => currentSceneId = id);
+            service.StartScene.OfType<SceneDescription>().Select(scene => scene.Id).Subscribe(id => currentSceneId = id);
             this.Tapped += (s, ee) => service.ActivateScene();
 
         }

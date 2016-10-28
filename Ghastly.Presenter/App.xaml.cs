@@ -29,7 +29,8 @@ namespace Ghastly.Presenter
         /// </summary>
         public App()
         {
-            ApplicationView.PreferredLaunchWindowingMode = ApplicationViewWindowingMode.FullScreen;
+            ApplicationView.PreferredLaunchWindowingMode = ApplicationViewWindowingMode.PreferredLaunchViewSize;
+            ApplicationView.PreferredLaunchViewSize = new Size(1920, 1080);
             this.InitializeComponent();
             this.Suspending += OnSuspending;
         }
