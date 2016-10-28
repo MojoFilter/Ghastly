@@ -83,6 +83,11 @@ namespace UapVideoTest
                 throw new NotImplementedException();
             }
 
+            public Task<byte[]> GetSceneImage(int sceneId)
+            {
+                throw new NotImplementedException();
+            }
+
             Task<IEnumerable<SceneDescription>> IGhastlyService.GetScenes() => Task.FromResult(new[]
             {
                 new SceneDescription() { Name="Bleeding Wall" },

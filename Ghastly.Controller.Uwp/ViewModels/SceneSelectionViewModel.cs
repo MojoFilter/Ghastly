@@ -66,6 +66,8 @@ namespace Ghastly.Controller.Uwp.ViewModels
 
             public Task<int> GetCurrentSceneId() => Task.FromResult(0);
 
+            public Task<byte[]> GetSceneImage(int sceneId) => Task.FromResult(new byte[0]);
+
             public Task<IEnumerable<SceneDescription>> GetScenes() => Task.FromResult(Enumerable.Empty<SceneDescription>());
         }
     }

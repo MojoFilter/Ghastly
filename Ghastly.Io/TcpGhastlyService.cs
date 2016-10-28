@@ -11,6 +11,7 @@ using Newtonsoft.Json;
 using Windows.Networking;
 using Windows.Foundation;
 using Windows.ApplicationModel.Background;
+using System.Runtime.InteropServices.WindowsRuntime;
 
 namespace Ghastly.Io
 {
@@ -50,6 +51,18 @@ namespace Ghastly.Io
             }
         }
 
+        public async Task<byte[]> GetSceneImage(int sceneId)
+        {
+            using (var socket = await this.SendCommand(CommandCode.GetSceneImage))
+            using (var reader = new DataReader(socket.InputStream))
+            {
+                await reader.LoadAsync(4);
+                var length = reader.ReadUInt32();
+                await reader.LoadAsync(length);
+                return reader.ReadBuffer(length).ToArray();
+            }
+        }
+
         public async Task<IEnumerable<SceneDescription>> GetScenes() 
         {
             using (var socket = await this.SendCommand(CommandCode.GetScenes))
@@ -83,6 +96,7 @@ namespace Ghastly.Io
         GetScenes,
         ActivateScene,
         GetCurrentSceneId,
-        BeginScene
+        BeginScene,
+        GetSceneImage
     }
 }

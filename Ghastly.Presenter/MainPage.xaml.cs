@@ -56,7 +56,7 @@ namespace Ghastly.Presenter
         private async void MainPage_Loaded(object sender, RoutedEventArgs e)
         {
             StorageFolder folder = await KnownFolders.GetFolderForUserAsync(null /* current user */, KnownFolderId.CameraRoll);
-            var service = new GhastlyService();
+            var service = new GhastlyService(folder);
             this.listener = new TcpGhastlyServiceListener(service);
             service.StartScene
                 .OfType<SceneDescription>()
@@ -86,7 +86,7 @@ namespace Ghastly.Presenter
         /// Loads the byte data from a StorageFile
         /// </summary>
         /// <param name="file">The file to read</param>
-        public async Task<byte[]> ReadFile(StorageFile file)
+        public static async Task<byte[]> ReadFile(StorageFile file)
         {
             byte[] fileBytes = null;
             using (IRandomAccessStreamWithContentType stream = await file.OpenReadAsync())
@@ -106,7 +106,7 @@ namespace Ghastly.Presenter
         {
             this.player.MediaPlayer.IsLoopingEnabled = true;
             var file = await folder.GetFileAsync(fileName);
-            var data = await this.ReadFile(file);
+            var data = await ReadFile(file);
             var stream = new MemoryStream(data).AsRandomAccessStream();
             this.player.MediaPlayer.Source = MediaSource.CreateFromStream(stream, file.ContentType);
             return Unit.Default;
@@ -126,9 +126,9 @@ namespace Ghastly.Presenter
 
         class GhastlyService : IGhastlyService
         {
-            public GhastlyService()
+            public GhastlyService(StorageFolder imageFolder)
             {
-
+                this.imageFolder = imageFolder;
             }
 
             private SceneDescription[] scenes = new[]
@@ -138,16 +138,37 @@ namespace Ghastly.Presenter
                     Id = 0,
                     Name = "Boneyard Band Black Background",
                     Idle = "BC_Buffer_Curtain_Win_Black_H.mp4",
-                    Active = "BC_BoneyardBand_Win_Black_H.mp4"
+                    Active = "BC_BoneyardBand_Win_Black_H.mp4",
+                    Image = "BC_BoneyardBand_Win_Black_H.png"
                 },
                 new SceneDescription()
                 {
                     Id = 1,
                     Name = "Bleeding Wall Spotlight",
                     Idle ="BW_Buffer_Wall_Spotlight_H.mp4",
-                    Active = "BW_DrippingBlood_Wall_Spotlight_H.mp4"
+                    Active = "BW_DrippingBlood_Wall_Spotlight_H.mp4",
+                    Image = "BW_DrippingBlood_Wall_Spotlight_H.png"
+                },
+                new SceneDescription()
+                {
+                    Id = 2,
+                    Name = "He's Alive",
+                    Idle = "TnT_Buffer_Black_H.mp4",
+                    Active = "TnT_HesAlive_Win_H.mp4",
+                    Image = "TnT_HesAlive_Win_H.png"
+                },
+                new SceneDescription()
+                {
+                    Id = 3,
+                    Name = "Treat Thief",
+                    Idle = "TnT_Buffer_Black_H.mp4",
+                    Active = "TnT_TreatThief_Win_H.mp4",
+                    Image = "TnT_TreatThief_Win_H"
                 }
+
             };
+
+            private SceneDescription GetScene(int sceneId) => this.scenes.FirstOrDefault(s => s.Id == sceneId);
 
             public Task<IEnumerable<SceneDescription>> GetScenes() => Task.FromResult(scenes.AsEnumerable());
 
@@ -155,12 +176,18 @@ namespace Ghastly.Presenter
 
             public Task<int> GetCurrentSceneId() => Task.FromResult(_StartScene.Value.Id);
 
-            public Task BeginScene(int sceneId) => Task.Run(() => this.StartScene.OnNext(this.scenes.FirstOrDefault(s => s.Id == sceneId)));
+            public Task BeginScene(int sceneId) => Task.Run(() => this.StartScene.OnNext(GetScene(sceneId)));
+
+            public async Task<byte[]> GetSceneImage(int sceneId) =>
+                await MainPage.ReadFile(await this.imageFolder.GetFileAsync(GetScene(sceneId).Image));
+                
 
             private BehaviorSubject<SceneDescription> _StartScene = new BehaviorSubject<SceneDescription>(null);
             public ISubject<SceneDescription> StartScene => _StartScene;
 
             private Subject<Unit> _TriggerScene = new Subject<Unit>();
+            private StorageFolder imageFolder;
+
             public ISubject<Unit> TriggerScene => _TriggerScene;
         }
     }

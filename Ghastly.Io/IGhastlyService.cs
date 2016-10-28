@@ -12,5 +12,6 @@ namespace Ghastly.Io
         Task ActivateScene();
         Task<int> GetCurrentSceneId();
         Task BeginScene(int sceneId);
+        Task<byte[]> GetSceneImage(int sceneId);
     }
 }
