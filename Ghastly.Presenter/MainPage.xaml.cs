@@ -163,7 +163,7 @@ namespace Ghastly.Presenter
                     Name = "Treat Thief",
                     Idle = "TnT_Buffer_Black_H.mp4",
                     Active = "TnT_TreatThief_Win_H.mp4",
-                    Image = "TnT_TreatThief_Win_H"
+                    Image = "TnT_TreatThief_Win_H.png"
                 }
 
             };
