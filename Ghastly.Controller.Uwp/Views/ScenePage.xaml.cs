@@ -39,10 +39,5 @@ namespace Ghastly.Controller.Uwp.Views
             this.Scene = pars.Item2;
             this.SceneTitle.Text = Scene.Name;
         }
-
-        private void Button_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
     }
 }

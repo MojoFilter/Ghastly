@@ -1,4 +1,5 @@
 ﻿using Ghastly.Controller.Uwp.ViewModels;
+using System.Reactive.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -28,11 +29,28 @@ namespace Ghastly.Controller.Uwp.Views
             this.InitializeComponent();
         }
 
-        public SceneSelectionViewModel ViewModel { get; private set; }
+
+
+        public SceneSelectionViewModel ViewModel
+        {
+            get { return (SceneSelectionViewModel)GetValue(ViewModelProperty); }
+            set { SetValue(ViewModelProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for ViewModel.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty ViewModelProperty =
+            DependencyProperty.Register("ViewModel", typeof(SceneSelectionViewModel), typeof(SettingsPage), new PropertyMetadata(null));
+
+
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             this.ViewModel = e.Parameter as SceneSelectionViewModel;
+        }
+
+        private async void Button_Click(object sender, RoutedEventArgs e)
+        {
+            await this.ViewModel.LoadScenes.Execute();
         }
     }
 }
