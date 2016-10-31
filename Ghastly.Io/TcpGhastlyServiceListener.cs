@@ -47,10 +47,24 @@ namespace Ghastly.Io
                     case CommandCode.GetSceneImage:
                         await this.HandleGetSceneImage(args.Socket.InputStream, args.Socket.OutputStream);
                         break;
+                    case CommandCode.PlayInterval:
+                        await this.HandlePlayInterval(args.Socket.InputStream);
+                        break;
                 }
                 args.Socket.Dispose();
             }
             finally { }
+        }
+
+        private async Task HandlePlayInterval(IInputStream inputStream)
+        {
+            using (var reader = new DataReader(inputStream))
+            {
+                var sceneId = await this.ReadSceneId(reader);
+                await reader.LoadAsync(4);
+                var seconds = reader.ReadDouble();
+                await this.ghast.PlayInterval(sceneId, TimeSpan.FromSeconds(seconds));
+            }
         }
 
         private async Task HandleGetSceneImage(IInputStream inputStream, IOutputStream outputStream)

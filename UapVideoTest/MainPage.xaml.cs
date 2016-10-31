@@ -88,6 +88,11 @@ namespace UapVideoTest
                 throw new NotImplementedException();
             }
 
+            public Task PlayInterval(int sceneId, TimeSpan interval)
+            {
+                throw new NotImplementedException();
+            }
+
             Task<IEnumerable<SceneDescription>> IGhastlyService.GetScenes() => Task.FromResult(new[]
             {
                 new SceneDescription() { Name="Bleeding Wall" },

@@ -1,6 +1,7 @@
 ﻿using Ghastly.Io;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reactive;
@@ -129,6 +130,9 @@ namespace Ghastly.Presenter
             public GhastlyService(StorageFolder imageFolder)
             {
                 this.imageFolder = imageFolder;
+                this.StartScene.Select(_ => Unit.Default)
+                    .Merge(this.TriggerScene)
+                    .Subscribe(_CancelInterval);
             }
 
             private SceneDescription[] scenes = new[]
@@ -204,10 +208,22 @@ namespace Ghastly.Presenter
 
             public async Task<byte[]> GetSceneImage(int sceneId) =>
                 await MainPage.ReadFile(await this.imageFolder.GetFileAsync(GetScene(sceneId).Image));
-                
+
+            public async Task PlayInterval(int sceneId, TimeSpan interval)
+            {
+                await this.BeginScene(sceneId);
+                Observable.Interval(interval)
+                    .Select(_ => Unit.Default)
+                    .TakeUntil(this.CancelInterval)
+                    .Do(_ => this.TriggerScene.OnNext(_))
+                    .Subscribe();
+            }
 
             private BehaviorSubject<SceneDescription> _StartScene = new BehaviorSubject<SceneDescription>(null);
             public ISubject<SceneDescription> StartScene => _StartScene;
+
+            private Subject<Unit> _CancelInterval = new Subject<Unit>();
+            private IObservable<Unit> CancelInterval => this._CancelInterval.Repeat();
 
             private Subject<Unit> _TriggerScene = new Subject<Unit>();
             private StorageFolder imageFolder;

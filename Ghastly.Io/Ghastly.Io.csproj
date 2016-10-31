@@ -111,7 +111,6 @@
     <Compile Include="IGhastlyService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SceneDescription.cs" />
-    <Compile Include="TcpCommandListener.cs" />
     <Compile Include="TcpGhastlyService.cs" />
     <Compile Include="TcpGhastlyServiceListener.cs" />
     <EmbeddedResource Include="Properties\Ghastly.Io.rd.xml" />
