@@ -5,8 +5,10 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reactive;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
+using System.Reactive.Threading.Tasks;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
 using Windows.Foundation;
@@ -14,6 +16,7 @@ using Windows.Foundation.Collections;
 using Windows.Media.Core;
 using Windows.Storage;
 using Windows.Storage.Streams;
+using Windows.UI.Core;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -38,6 +41,7 @@ namespace Ghastly.Presenter
         {
             this.InitializeComponent();
             this.Loaded += MainPage_Loaded;
+            this.ended = Observable.FromEventPattern(player.MediaPlayer, "MediaEnded").SubscribeOnDispatcher().Publish().RefCount();
         }
 
 
@@ -62,25 +66,29 @@ namespace Ghastly.Presenter
             service.StartScene
                 .OfType<SceneDescription>()
                 .Select(scene => scene.Idle)
-                .ObserveOnDispatcher()
                 .SelectMany(file => this.PlayLoop(file, folder))
                 .Subscribe();
 
             service.StartScene
                 .OfType<SceneDescription>()
                 .SelectMany(scene => service.TriggerScene.Select(_ => scene))
-                .ObserveOnDispatcher()
                 .SelectMany(scene => this.PlayOnce(scene.Active, scene.Idle, folder))
                 .Subscribe();
 
-            //this.player.IsFullWindow = true;
+
+            service.PlayIntervalSource
+                .OfType<Tuple<SceneDescription, TimeSpan>>()
+                .Subscribe(async p =>
+                {
+                    var loop = await this.PlayInterval(p.Item2, p.Item1.Active, p.Item1.Idle, folder);
+                    service.StartScene.OfType<SceneDescription>().Select(_ => Unit.Default)
+                    .Merge(service.TriggerScene).Subscribe(_ => loop.Dispose());
+                });
 
             await this.listener.Listen();
 
             int currentSceneId = 0;
             service.StartScene.OfType<SceneDescription>().Select(scene => scene.Id).Subscribe(id => currentSceneId = id);
-            //this.Tapped += (s, ee) => service.ActivateScene();
-
         }
 
         /// <summary>
@@ -105,24 +113,58 @@ namespace Ghastly.Presenter
 
         private async Task<Unit> PlayLoop(string fileName, StorageFolder folder)
         {
-            this.player.MediaPlayer.IsLoopingEnabled = true;
+            await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () => this.player.MediaPlayer.IsLoopingEnabled = true);
             var file = await folder.GetFileAsync(fileName);
             var data = await ReadFile(file);
             var stream = new MemoryStream(data).AsRandomAccessStream();
-            this.player.MediaPlayer.Source = MediaSource.CreateFromStream(stream, file.ContentType);
+            var source = MediaSource.CreateFromStream(stream, file.ContentType);
+            await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () => this.player.MediaPlayer.Source = source);
             return Unit.Default;
         }
 
-        private async Task<Unit> PlayOnce(string fileName, string idleFileName, StorageFolder folder)
+        string currentFile;
+        private IObservable<EventPattern<object>> ended;
+
+        private async Task<Task<Unit>> PlayOnce(string fileName, string idleFileName, StorageFolder folder)
         {
-            this.player.MediaPlayer.IsLoopingEnabled = false;
-            this.player.MediaPlayer.Source = MediaSource.CreateFromStorageFile(await folder.GetFileAsync(fileName));
-            Observable.FromEventPattern(this.player.MediaPlayer, "MediaEnded")
-                .Take(1)
-                .ObserveOnDispatcher()
-                .SelectMany(_ => this.PlayLoop(idleFileName, folder))
-                .Subscribe();
-            return Unit.Default;
+            if (fileName == currentFile)
+            {
+                await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () => this.player.MediaPlayer.PlaybackSession.Position = TimeSpan.Zero);
+            }
+            else
+            {
+                currentFile = fileName;
+                var file = await folder.GetFileAsync(fileName);
+                var source = MediaSource.CreateFromStorageFile(file);
+                await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                {
+                    this.player.MediaPlayer.IsLoopingEnabled = false;
+                    this.player.MediaPlayer.Source = source;
+                });
+            }
+            var ended = this.ended.Take(1).Select(_ => Unit.Default);
+            ended.SelectMany(_ => this.PlayLoop(idleFileName, folder)).Subscribe();
+            return ended.ToTask();
+        }
+
+        private async Task<IDisposable> PlayInterval(TimeSpan interval, string fileName, string idleFileName, StorageFolder folder)
+        {
+            var loopingDisposable = new BooleanDisposable();
+            Func<bool> looping = () => !loopingDisposable.IsDisposed;
+            await this.PlayLoop(idleFileName, folder);
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+            Task.Run(async () =>
+            {
+                await Task.Delay(interval);
+                while (looping())
+                {
+                    var playtime = await this.PlayOnce(fileName, idleFileName, folder);
+                    await playtime;
+                    await Task.Delay(interval);
+                }
+            });
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+            return loopingDisposable;
         }
 
         class GhastlyService : IGhastlyService
@@ -209,15 +251,7 @@ namespace Ghastly.Presenter
             public async Task<byte[]> GetSceneImage(int sceneId) =>
                 await MainPage.ReadFile(await this.imageFolder.GetFileAsync(GetScene(sceneId).Image));
 
-            public async Task PlayInterval(int sceneId, TimeSpan interval)
-            {
-                await this.BeginScene(sceneId);
-                Observable.Interval(interval)
-                    .Select(_ => Unit.Default)
-                    .TakeUntil(this.CancelInterval)
-                    .Do(_ => this.TriggerScene.OnNext(_))
-                    .Subscribe();
-            }
+            public Task PlayInterval(int sceneId, TimeSpan interval) => Task.Run(() => PlayIntervalSource.OnNext(Tuple.Create(GetScene(sceneId), interval)));
 
             private BehaviorSubject<SceneDescription> _StartScene = new BehaviorSubject<SceneDescription>(null);
             public ISubject<SceneDescription> StartScene => _StartScene;
@@ -229,6 +263,8 @@ namespace Ghastly.Presenter
             private StorageFolder imageFolder;
 
             public ISubject<Unit> TriggerScene => _TriggerScene;
+
+            public ISubject<Tuple<SceneDescription, TimeSpan>> PlayIntervalSource { get; } = new Subject<Tuple<SceneDescription, TimeSpan>>();
         }
     }
 }

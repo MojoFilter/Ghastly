@@ -61,7 +61,7 @@ namespace Ghastly.Io
             using (var reader = new DataReader(inputStream))
             {
                 var sceneId = await this.ReadSceneId(reader);
-                await reader.LoadAsync(4);
+                await reader.LoadAsync(8);
                 var seconds = reader.ReadDouble();
                 await this.ghast.PlayInterval(sceneId, TimeSpan.FromSeconds(seconds));
             }
