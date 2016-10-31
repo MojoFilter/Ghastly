@@ -7,30 +7,59 @@
       mc:Ignorable="d">
 
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-        <RelativePanel>
+        <RelativePanel Padding="10">
             <TextBlock x:Name="SceneTitle"
                        Style="{StaticResource SampleHeaderTextStyle}"
-                       Margin="10" />
+                       Text="Scene Title"/>
             <Image x:Name="PreviewImage"
                    RelativePanel.Below="SceneTitle"
-                   Margin="10"
+                   Margin="0,10"
                    Height="450"
-                   Width="800" />
+                   Width="800" Source="ms-appx:///Assets/Wide310x150Logo.png" />
             <ProgressRing x:Name="ImageProgress"
                           RelativePanel.AlignVerticalCenterWith="PreviewImage"
                           RelativePanel.AlignHorizontalCenterWith="PreviewImage"
                           IsActive="True"
                           Width="100"
                           Height="100" />
-            <Button x:Name="StartButton"
-                    RelativePanel.Below="PreviewImage"
-                    Margin="10"
-                    Command="{x:Bind ViewModel.BeginScene}"
-                    CommandParameter="{x:Bind Scene.Id}">Start Scene</Button>
-            <Button RelativePanel.RightOf="StartButton"
-                    RelativePanel.Below="PreviewImage"
-                    Margin="0,10"
-                    Command="{x:Bind ViewModel.Trigger}">Trigger Action</Button>
+
+            <RelativePanel x:Name="AutoControlBox"
+                           Style="{StaticResource GroupBox}"
+                           RelativePanel.Below="PreviewImage">
+                <TextBlock x:Name="AutomaticSectionTitle" Style="{StaticResource SampleHeaderTextStyle}"
+                           Margin="0,0,0,20">Automatic</TextBlock>
+                <TextBlock x:Name="IntervalLabel"
+                           RelativePanel.Below="AutomaticSectionTitle">Interval:</TextBlock>
+                <TextBox x:Name="IntervalTextBox" 
+                         RelativePanel.Below="AutomaticSectionTitle"
+                         RelativePanel.RightOf="IntervalLabel"
+                         RelativePanel.AlignVerticalCenterWith="IntervalLabel"
+                         Margin="10"
+                         Width="70"
+                         Text="20"/>
+                <TextBlock x:Name="IntervalLabel2" 
+                           RelativePanel.RightOf="IntervalTextBox"
+                           RelativePanel.AlignVerticalCenterWith="IntervalLabel">(Seconds)</TextBlock>
+                <Button RelativePanel.Below="IntervalTextBox">Start Scene</Button>
+            </RelativePanel>
+
+            <RelativePanel x:Name="ManualControlBox" 
+                           Style="{StaticResource GroupBox}"
+                           RelativePanel.Below="PreviewImage"
+                           RelativePanel.AlignRightWith="PreviewImage"
+                           Margin="10,0,0,0">
+                <TextBlock x:Name="SectionTitle" Style="{StaticResource SampleHeaderTextStyle}"
+                           Margin="0,0,0,10">Manual Control</TextBlock>
+                <Button x:Name="StartButton"
+                        RelativePanel.Below="SectionTitle"
+                        Command="{x:Bind ViewModel.BeginScene}"
+                        CommandParameter="{x:Bind Scene.Id}">Start Scene</Button>
+                <Button RelativePanel.RightOf="StartButton"
+                        RelativePanel.AlignTopWith="StartButton"
+                        Margin="10,0,0,0"
+                        Command="{x:Bind ViewModel.Trigger}">Trigger Action</Button>
+            </RelativePanel>
+
         </RelativePanel>
     </Grid>
 </Page>
