@@ -36,58 +36,62 @@ namespace Ghastly.Io
         public async Task ActivateScene() =>
             (await this.SendCommand(CommandCode.ActivateScene)).Dispose();
 
-        public async Task BeginScene(int sceneId)
-        {
-            using (var socket = await this.SendCommand(CommandCode.BeginScene))
+        public async Task BeginScene(int sceneId) =>
+            await this.SendCommand(CommandCode.BeginScene, writer => writer.WriteInt32(sceneId));
+        
+        public async Task PlayInterval(int sceneId, TimeSpan interval) =>
+            await this.SendCommand(CommandCode.PlayInterval, writer =>
             {
-                await WriteSceneId(sceneId, socket.OutputStream);
-            }
-        }
+                writer.WriteInt32(sceneId);
+                writer.WriteDouble(interval.TotalSeconds);
+            });
 
-        private async Task WriteSceneId(int sceneId, IOutputStream stream)
-        {
-            using (var writer = new DataWriter(stream))
+
+        public async Task<int> GetCurrentSceneId() =>
+            await this.SendCommandRead(CommandCode.GetCurrentSceneId, async (reader, writer) =>
+            {
+                await reader.LoadAsync(4);
+                return reader.ReadInt32();
+            });
+
+        public async Task<byte[]> GetSceneImage(int sceneId) =>
+            await this.SendCommandRead(CommandCode.GetSceneImage, async (reader, writer) =>
             {
                 writer.WriteInt32(sceneId);
                 await writer.StoreAsync();
-                writer.DetachStream();
-            }
-        }
-
-        public async Task<int> GetCurrentSceneId()
-        {
-            using (var socket = await this.SendCommand(CommandCode.GetCurrentSceneId))
-            using (var reader = new DataReader(socket.InputStream))
-            {
-                await reader.LoadAsync(1);
-                return (int)reader.ReadByte();
-            }
-        }
-
-        public async Task<byte[]> GetSceneImage(int sceneId)
-        {
-            using (var socket = await this.SendCommand(CommandCode.GetSceneImage))
-            using (var reader = new DataReader(socket.InputStream))
-            {
-                await WriteSceneId(sceneId, socket.OutputStream);
                 await reader.LoadAsync(4);
                 var length = reader.ReadUInt32();
                 await reader.LoadAsync(length);
                 return reader.ReadBuffer(length).ToArray();
-            }
-        }
+            });
 
-        public async Task<IEnumerable<SceneDescription>> GetScenes() 
-        {
-            using (var socket = await this.SendCommand(CommandCode.GetScenes))
-            using (var reader = new DataReader(socket.InputStream))
-            {
+        public async Task<IEnumerable<SceneDescription>> GetScenes() =>
+            await this.SendCommandRead(CommandCode.GetScenes, async (reader, writer) => {
                 reader.InputStreamOptions = InputStreamOptions.Partial;
                 await reader.LoadAsync(1024 * 4);
                 var data = reader.ReadString(reader.UnconsumedBufferLength);
                 return JsonConvert.DeserializeObject<IEnumerable<SceneDescription>>(data);
+            });
+
+        private async Task<T> SendCommandRead<T>(CommandCode cmd, Func<DataReader, DataWriter, Task<T>> interact)
+        {
+            using (var socket = await this.SendCommand(cmd))
+            using (var writer = new DataWriter(socket.OutputStream))
+            using (var reader = new DataReader(socket.InputStream))
+            {
+                var retVal = await interact(reader, writer);
+                await writer.StoreAsync();
+                await writer.FlushAsync();
+                return retVal;
             }
         }
+
+        private async Task SendCommand(CommandCode cmd, Action<DataWriter> write) =>
+            await this.SendCommandRead(cmd, (reader, writer) =>
+            {
+                write(writer);
+                return Task.FromResult(0);
+            });
 
         private async Task<StreamSocket> SendCommand(CommandCode cmd)
         {
@@ -111,6 +115,7 @@ namespace Ghastly.Io
         ActivateScene,
         GetCurrentSceneId,
         BeginScene,
-        GetSceneImage
+        GetSceneImage,
+        PlayInterval
     }
 }

@@ -74,6 +74,19 @@ namespace Ghastly.Io
             return this;
         }
 
+        global::System.Threading.Tasks.Task global::Ghastly.Io.IGhastlyService.PlayInterval(int sceneId, global::System.TimeSpan interval)
+        {
+            return _stubs.GetMethodStub<PlayInterval_Int32_TimeSpan_Delegate>("PlayInterval").Invoke(sceneId, interval);
+        }
+
+        public delegate global::System.Threading.Tasks.Task PlayInterval_Int32_TimeSpan_Delegate(int sceneId, global::System.TimeSpan interval);
+
+        public StubIGhastlyService PlayInterval(PlayInterval_Int32_TimeSpan_Delegate del, int count = Times.Forever, bool overwrite = false)
+        {
+            _stubs.SetMethodStub(del, count, overwrite);
+            return this;
+        }
+
         global::System.Threading.Tasks.Task<byte[]> global::Ghastly.Io.IGhastlyService.GetSceneImage(int sceneId)
         {
             return _stubs.GetMethodStub<GetSceneImage_Int32_Delegate>("GetSceneImage").Invoke(sceneId);
